@@ -1,4 +1,5 @@
 <?php
+session_start(); // start session
 include 'config.php'; // PDO connection
 
 $code = $_GET['code'] ?? '';
@@ -8,25 +9,26 @@ if (!$code) {
 }
 
 // Find user by activation code
-$stmt = $pdo->prepare("SELECT id, is_active FROM users WHERE activation_code = ?");
+$stmt = $pdo->prepare("SELECT id, username, is_active FROM users WHERE activation_code = ?");
 $stmt->execute([$code]);
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$user) {
     die('<div class="text-center mt-5"><h3>Activation code not found ❌</h3></div>');
-} elseif ($user['is_active']) {
-    die('<div class="text-center mt-5"><h3>Account already activated ✅</h3></div>');
 }
 
-// Activate user
-$stmt = $pdo->prepare("UPDATE users SET is_active = 1 WHERE id = ?");
-$stmt->execute([$user['id']]);
+// Activate user if not active
+if (!$user['is_active']) {
+    $stmt = $pdo->prepare("UPDATE users SET is_active = 1 WHERE id = ?");
+    $stmt->execute([$user['id']]);
+}
 
-$protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-$host = $_SERVER['HTTP_HOST'];
-$path = rtrim(dirname($_SERVER['REQUEST_URI']), '/\\');
-$loginURL = $protocol . '://' . $host . $path . '/login.php';
+// Auto-login
+$_SESSION['user_id'] = $user['id'];
+$_SESSION['username'] = $user['username'];
 
+// Dashboard URL
+$dashboardURL = 'dashboard.php';
 ?>
 
 <!DOCTYPE html>
@@ -85,8 +87,8 @@ $loginURL = $protocol . '://' . $host . $path . '/login.php';
 <div class="activation-card">
   <i class="bi bi-check-circle-fill"></i>
   <h2>Account Activated!</h2>
-  <p>Your account has been successfully activated. You can now log in to access all features.</p>
-  <a href="<?php echo $loginURL; ?>" class="btn btn-success w-100">Go to Login</a>
+  <p>Your account has been successfully activated. You are now logged in and can access your dashboard.</p>
+  <a href="<?php echo $dashboardURL; ?>" class="btn btn-success w-100">Go to Dashboard</a>
 </div>
 
 </body>

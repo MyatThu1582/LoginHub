@@ -102,11 +102,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
       <div class="social-login text-center mb-3 mt-3">
-        <p>Or Continue with</p>
-        <button type="button" class="btn btn-outline-primary"><i class="bi bi-facebook"></i> Facebook</button>
-        <button type="button" class="btn btn-outline-info"><i class="bi bi-twitter"></i> Twitter</button>
-        <button type="button" class="btn btn-outline-danger"><i class="bi bi-google"></i> Google</button>
-      </div>
+        <p class="fw-bold text-muted">Or Continue with</p>
+        <div class="d-flex justify-content-center gap-3 mt-2">
+            <a href="google_login.php" class="social-btn google" title="Sign in with Google">
+                <img src="google.png" alt="" width="25" height="25"> Google
+            </a>
+            <a href="#" class="social-btn twitter" title="Sign in with Twitter">
+                <img src="twitter.png" alt="" width="25" height="25"> Twitter
+            </a>
+            <a href="#" class="social-btn facebook" title="Sign in with Facebook">
+                <i class="bi bi-facebook"></i> Facebook
+            </a>
+        </div>
+    </div>
 
       <p class="text-center">
         Don't have an account? 
