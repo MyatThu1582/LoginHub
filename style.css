@@ -1,0 +1,89 @@
+/* ===================== Global Styles ===================== */
+body {
+    background: linear-gradient(135deg, #e0f0ff, #f4f7fb);
+    font-family: 'Poppins', sans-serif;
+    color: #333;
+}
+body.dark-mode {
+    background: #121212;
+    color: #f8f9fa;
+}
+
+/* ===================== Form Containers ===================== */
+.form-wizard,
+.signin-form {
+    max-width: 500px;
+    margin: 50px auto;
+    padding: 40px 30px;
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+}
+body.dark-mode .form-wizard,
+body.dark-mode .signin-form {
+    background: #1e1e1e;
+    color: #fff;
+    box-shadow: 0 15px 30px rgba(255,255,255,0.05);
+}
+
+/* ===================== Form Controls ===================== */
+.form-control {
+    border-radius: 10px;
+    padding: 12px 15px;
+    font-size: 15px;
+    border: 1px solid #ccc;
+}
+body.dark-mode .form-control {
+    background: #2b2b2b;
+    color: #fff;
+    border-color: #444;
+}
+
+/* ===================== Buttons ===================== */
+.btn-success,
+.btn-primary {
+    border-radius: 10px;
+    padding: 10px 25px;
+    border: none;
+}
+.btn-success {
+    background: linear-gradient(90deg, #28a745, #1e7e34);
+}
+.btn-primary {
+    background: linear-gradient(90deg, #007bff, #0056b3);
+}
+
+/* ===================== Social Login Buttons ===================== */
+.social-login button {
+    border-radius: 10px;
+    margin: 3px;
+}
+
+/* ===================== Dark Mode Toggle ===================== */
+.dark-mode-toggle {
+    position: fixed;
+    top: 15px;
+    right: 20px;
+    z-index: 1000;
+}
+.dark-mode-toggle button {
+    border: none;
+    padding: 10px 12px;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+    transition: all 0.3s ease;
+}
+
+/* ===================== Success Screen ===================== */
+.success-screen {
+    animation: fadeIn 0.5s ease-in-out;
+    text-align: center;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===================== Misc ===================== */
+.invalid-feedback { display: block; }
