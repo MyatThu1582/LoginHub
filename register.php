@@ -1,5 +1,6 @@
 <?php
 include 'config.php'; // PDO connection
+require __DIR__ . '/vendor/autoload.php'; // PHPMailer
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
@@ -42,14 +43,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $activation_code = bin2hex(random_bytes(16));
     $is_active = 0;
     $created_at = date('Y-m-d H:i:s');
+
     $stmt = $pdo->prepare('INSERT INTO users (username, email, password, activation_code, is_active, created_at) VALUES (?, ?, ?, ?, ?, ?)');
     $stmt->execute([$username, $email, $hash, $activation_code, $is_active, $created_at]);
 
-    echo json_encode([
-        'success' => true,
-        'activation_code' => $activation_code
-    ]);
-    exit;
+    // === Prepare activation link ===
+    $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+    $host = $_SERVER['HTTP_HOST'];
+    $path = rtrim(dirname($_SERVER['REQUEST_URI']), '/\\');
+    $activation_link = $protocol . '://' . $host . $path . '/activate.php?code=' . $activation_code;
+
+    // === Send email via PHPMailer ===
+    try {
+        $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
+        $mail->isSMTP();
+        $mail->Host = $mail_host;
+        $mail->SMTPAuth = true;
+        $mail->Username = $mail_user;
+        $mail->Password = $mail_pass;
+        $mail->SMTPSecure = \PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port = $mail_port;
+
+        $mail->setFrom($mail_from, $mail_from_name);
+        $mail->addAddress($email, $username);
+
+        $mail->isHTML(true);
+        $mail->Subject = 'Activate your account';
+        $mail->Body = "<p>Hello " . htmlspecialchars($username) . ",</p>
+            <p>Thanks for registering! Click the link below to activate your account:</p>
+            <p><a href='" . htmlspecialchars($activation_link) . "'>Activate Account</a></p>
+            <p>If you didn’t register, just ignore this email.</p>";
+
+        $mail->send();
+
+        echo json_encode(['success' => true, 'message' => 'Registration successful! Check your email to activate your account.']);
+        exit;
+    } catch (\Exception $e) {
+        error_log('Activation email error: ' . $e->getMessage());
+        echo json_encode(['success' => false, 'message' => 'Could not send activation email.']);
+        exit;
+    }
 }
 
 // === If GET request, show the form ===

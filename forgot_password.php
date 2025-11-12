@@ -90,7 +90,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Generic message to avoid email enumeration
         if (!$error) {
-            $message = 'If an account with that email exists, a password reset link has been sent.';
+            $message = 'Password reset link has been sent.';
         }
     }
 }
@@ -140,9 +140,63 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </div>
 
 <script>
+// Theme toggle (keep your existing code)
 const themeToggle = document.getElementById("themeToggle");
 if(localStorage.getItem("theme")==="dark") document.body.classList.add("dark-mode");
-themeToggle.addEventListener("click",()=>{document.body.classList.toggle("dark-mode");localStorage.setItem("theme",document.body.classList.contains("dark-mode")?"dark":"light");});
+themeToggle.addEventListener("click",()=>{
+    document.body.classList.toggle("dark-mode");
+    localStorage.setItem("theme",document.body.classList.contains("dark-mode")?"dark":"light");
+});
+
+// ==================== Forgot Password AJAX ====================
+const forgotForm = document.querySelector('.form-wizard form');
+if (forgotForm) {
+  forgotForm.addEventListener('submit', e => {
+    e.preventDefault();
+
+    // Clear previous messages
+    document.querySelectorAll('.alert').forEach(el => el.remove());
+
+    const submitBtn = forgotForm.querySelector('[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.disabled = true;
+    submitBtn.classList.add('opacity-75');
+    submitBtn.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Sending...`;
+
+    const formData = new FormData(forgotForm);
+
+    fetch('forgot_password.php', { method: 'POST', body: formData })
+      .then(res => res.text()) // get full HTML since PHP outputs HTML
+      .then(html => {
+        // Restore button
+        submitBtn.disabled = false;
+        submitBtn.classList.remove('opacity-75');
+        submitBtn.innerHTML = originalText;
+
+        // Parse returned HTML and extract messages
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+
+        const success = doc.querySelector('.alert-success');
+        const error = doc.querySelector('.alert-danger');
+
+        if (success) forgotForm.insertAdjacentElement('beforebegin', success);
+        if (error) forgotForm.insertAdjacentElement('beforebegin', error);
+      })
+      .catch(err => {
+        console.error(err);
+        submitBtn.disabled = false;
+        submitBtn.classList.remove('opacity-75');
+        submitBtn.innerHTML = originalText;
+
+        const div = document.createElement('div');
+        div.className = 'alert alert-danger';
+        div.innerText = 'Server error. Check console.';
+        forgotForm.insertAdjacentElement('beforebegin', div);
+      });
+  });
+}
 </script>
+
 </body>
 </html>

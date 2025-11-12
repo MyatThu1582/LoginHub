@@ -102,10 +102,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
       <div class="social-login text-center mb-3 mt-3">
-        <div class="mt-4 mb-4">
-          <hr class="border-secondary">
-          <span class="position-absolute start-50 translate-middle bg-white px-2 text-muted" style="top: 73%;">Or Continue with</span>
-        </div>
+        <p>Or Continue with</p>
         <button type="button" class="btn btn-outline-primary"><i class="bi bi-facebook"></i> Facebook</button>
         <button type="button" class="btn btn-outline-info"><i class="bi bi-twitter"></i> Twitter</button>
         <button type="button" class="btn btn-outline-danger"><i class="bi bi-google"></i> Google</button>

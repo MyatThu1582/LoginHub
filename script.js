@@ -69,7 +69,6 @@ function debounce(fn, delay = 500) {
 // ==================== Register Form ====================
 const registerForm = document.getElementById('registerForm');
 if (registerForm) {
-
   const emailInput = registerForm.querySelector('[name="email"]');
   const usernameInput = registerForm.querySelector('[name="username"]');
 
@@ -82,19 +81,24 @@ if (registerForm) {
 
     const formData = new FormData(registerForm);
     const submitBtn = registerForm.querySelector('[type="submit"]');
-    if (submitBtn) { submitBtn.disabled = true; submitBtn.classList.add('opacity-75'); }
+
+    // Save original text
+    const originalText = submitBtn.innerHTML;
+
+    // ===== Add loading state =====
+    submitBtn.disabled = true;
+    submitBtn.classList.add('opacity-75');
+    submitBtn.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Registering...`;
 
     fetch('register.php', { method: 'POST', body: formData })
       .then(res => res.json())
       .then(data => {
-        if (submitBtn) { submitBtn.disabled = false; submitBtn.classList.remove('opacity-75'); }
+        // ===== Restore button =====
+        submitBtn.disabled = false;
+        submitBtn.classList.remove('opacity-75');
+        submitBtn.innerHTML = originalText;
 
         if (data.success) {
-          // Demo activation link
-          const projectPath = '/mt_php/Login%20Register%20System/'; 
-          const activationURL = `${window.location.origin}${projectPath}activate.php?code=${data.activation_code}`;
-
-          // Show success screen
           let successScreen = document.getElementById('successScreen');
           if (!successScreen) {
             successScreen = document.createElement('div');
@@ -107,13 +111,14 @@ if (registerForm) {
           registerForm.style.display = 'none';
           successScreen.style.display = 'block';
           successScreen.innerHTML = `
-            <div class="mb-3"><i class="bi bi-check-circle-fill" style="font-size:48px; color: #28a745;"></i></div>
+            <div class="mb-3">
+              <i class="bi bi-check-circle-fill" style="font-size:48px; color: #28a745;"></i>
+            </div>
             <h4 class="mb-2">Registration Successful</h4>
-            <p class="mb-3">Click the link below to activate your account (Demo only):</p>
-            <a href="${activationURL}" target="_blank" style="word-break: break-all;">${activationURL}</a>
+            <p class="mb-3">Please check your email to activate your account.</p>
           `;
-          registerForm.reset();
 
+          registerForm.reset();
         } else if (data.errors) {
           for (const field in data.errors) {
             const input = registerForm.querySelector(`[name="${field}"]`);
@@ -126,15 +131,15 @@ if (registerForm) {
       })
       .catch(err => {
         console.error(err);
-        if (submitBtn) { submitBtn.disabled = false; submitBtn.classList.remove('opacity-75'); }
+        submitBtn.disabled = false;
+        submitBtn.classList.remove('opacity-75');
+        submitBtn.innerHTML = originalText;
         showGeneralError('Server error. Check console for details.');
       });
   });
 
-  // Remove inline error when typing
   registerForm.querySelectorAll('input').forEach(input => input.addEventListener('input', () => input.classList.remove('is-invalid')));
 }
-
 
 // ==================== Login AJAX ====================
 const loginForm = document.getElementById('loginForm');
@@ -150,12 +155,20 @@ if (loginForm) {
 
     const formData = new FormData(loginForm);
     const submitBtn = loginForm.querySelector('[type="submit"]');
-    if (submitBtn) { submitBtn.disabled = true; submitBtn.classList.add('opacity-75'); }
+
+    // ===== Add loading state =====
+    const originalText = submitBtn.innerHTML;
+    submitBtn.disabled = true;
+    submitBtn.classList.add('opacity-75');
+    submitBtn.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Logging in...`;
 
     fetch('login.php', { method: 'POST', body: formData })
       .then(res => res.json())
       .then(data => {
-        if (submitBtn) { submitBtn.disabled = false; submitBtn.classList.remove('opacity-75'); }
+        // ===== Restore button =====
+        submitBtn.disabled = false;
+        submitBtn.classList.remove('opacity-75');
+        submitBtn.innerHTML = originalText;
 
         if (data.success) {
           loginMessage.innerHTML = `<div class="alert alert-success">Login successful! Redirecting...</div>`;
@@ -178,65 +191,11 @@ if (loginForm) {
         }
       })
       .catch(err => {
-        if (submitBtn) { submitBtn.disabled = false; submitBtn.classList.remove('opacity-75'); }
         console.error(err);
+        submitBtn.disabled = false;
+        submitBtn.classList.remove('opacity-75');
+        submitBtn.innerHTML = originalText;
         loginMessage.innerHTML = `<div class="alert alert-danger">Server error. Check console.</div>`;
       });
   });
 }
-
-// ==================== Reset PAssword AJAX ====================
-const resetForm = document.querySelector('.form-wizard form');
-if (resetForm) {
-  // Find the <h4> inside .form-wizard
-  const heading = document.querySelector('.form-wizard h4');
-  const formMessage = document.createElement('div');
-  heading.insertAdjacentElement('afterend', formMessage); // put it below <h4>
-
-  resetForm.addEventListener('submit', e => {
-    e.preventDefault();
-
-    // Clear previous errors
-    resetForm.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
-    resetForm.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
-    formMessage.innerHTML = '';
-
-    const formData = new FormData(resetForm);
-    const submitBtn = resetForm.querySelector('[type="submit"]');
-    if (submitBtn) { submitBtn.disabled = true; submitBtn.classList.add('opacity-75'); }
-
-    fetch(resetForm.action, { method: 'POST', body: formData })
-      .then(res => res.json())
-      .then(data => {
-        if (submitBtn) { submitBtn.disabled = false; submitBtn.classList.remove('opacity-75'); }
-
-        if (data.success) {
-          resetForm.remove(); // remove form after success
-          formMessage.innerHTML = `<div class="alert alert-success mt-3">${data.message}</div>`;
-        } else {
-          if (data.errors) {
-            for (const field in data.errors) {
-              const input = resetForm.querySelector(`[name="${field}"]`);
-              if (input) {
-                input.classList.add('is-invalid');
-                const msg = document.createElement('div');
-                msg.className = 'invalid-feedback';
-                msg.innerText = data.errors[field];
-                input.parentNode.appendChild(msg);
-              }
-            }
-          }
-          if (data.message) {
-            formMessage.innerHTML = `<div class="alert alert-danger mt-3">${data.message}</div>`;
-          }
-        }
-      })
-      .catch(err => {
-        if (submitBtn) { submitBtn.disabled = false; submitBtn.classList.remove('opacity-75'); }
-        console.error(err);
-        formMessage.innerHTML = `<div class="alert alert-danger mt-3">Server error. Check console.</div>`;
-      });
-  });
-}
-
-

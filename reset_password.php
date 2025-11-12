@@ -98,6 +98,60 @@ if (isset($_GET['reset_token'])) {
   </p>
 </div>
 
-<script src="script.js?v=reset_password"></script>
+<script>
+    // ==================== Reset PAssword AJAX ====================
+const resetForm = document.querySelector('.form-wizard form');
+if (resetForm) {
+  // Find the <h4> inside .form-wizard
+  const heading = document.querySelector('.form-wizard h4');
+  const formMessage = document.createElement('div');
+  heading.insertAdjacentElement('afterend', formMessage); // put it below <h4>
+
+  resetForm.addEventListener('submit', e => {
+    e.preventDefault();
+
+    // Clear previous errors
+    resetForm.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+    resetForm.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
+    formMessage.innerHTML = '';
+
+    const formData = new FormData(resetForm);
+    const submitBtn = resetForm.querySelector('[type="submit"]');
+    if (submitBtn) { submitBtn.disabled = true; submitBtn.classList.add('opacity-75'); }
+
+    fetch(resetForm.action, { method: 'POST', body: formData })
+      .then(res => res.json())
+      .then(data => {
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.classList.remove('opacity-75'); }
+
+        if (data.success) {
+          resetForm.remove(); // remove form after success
+          formMessage.innerHTML = `<div class="alert alert-success mt-3">${data.message}</div>`;
+        } else {
+          if (data.errors) {
+            for (const field in data.errors) {
+              const input = resetForm.querySelector(`[name="${field}"]`);
+              if (input) {
+                input.classList.add('is-invalid');
+                const msg = document.createElement('div');
+                msg.className = 'invalid-feedback';
+                msg.innerText = data.errors[field];
+                input.parentNode.appendChild(msg);
+              }
+            }
+          }
+          if (data.message) {
+            formMessage.innerHTML = `<div class="alert alert-danger mt-3">${data.message}</div>`;
+          }
+        }
+      })
+      .catch(err => {
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.classList.remove('opacity-75'); }
+        console.error(err);
+        formMessage.innerHTML = `<div class="alert alert-danger mt-3">Server error. Check console.</div>`;
+      });
+  });
+}
+</script>
 </body>
 </html>

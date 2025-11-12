@@ -22,8 +22,11 @@ if (!$user) {
 $stmt = $pdo->prepare("UPDATE users SET is_active = 1 WHERE id = ?");
 $stmt->execute([$user['id']]);
 
-$projectPath = '/mt_php/Login Register System/';
-$loginURL = $projectPath . 'index.html';
+$protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+$host = $_SERVER['HTTP_HOST'];
+$path = rtrim(dirname($_SERVER['REQUEST_URI']), '/\\');
+$loginURL = $protocol . '://' . $host . $path . '/login.php';
+
 ?>
 
 <!DOCTYPE html>
