@@ -102,17 +102,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
       <div class="social-login text-center mb-3 mt-3">
-        <p class="fw-bold text-muted">Or Continue with</p>
-        <div class="d-flex justify-content-center gap-3 mt-2">
+        <p class="fw-bold text-muted">Or</p>
+        <div class="">
             <a href="google_login.php" class="social-btn google" title="Sign in with Google">
-                <img src="google.png" alt="" width="25" height="25"> Google
+                <img src="google.png" alt="" width="25" height="25"> Continue with Google
             </a>
-            <a href="#" class="social-btn twitter" title="Sign in with Twitter">
+            <!-- <a href="#" class="social-btn twitter" title="Sign in with Twitter">
                 <img src="twitter.png" alt="" width="25" height="25"> Twitter
             </a>
             <a href="#" class="social-btn facebook" title="Sign in with Facebook">
                 <i class="bi bi-facebook"></i> Facebook
-            </a>
+            </a> -->
         </div>
     </div>
 
